@@ -287,27 +287,34 @@ impl Clone for Mpz {
     }
 }
 
-impl cmp::Eq for Mpz {
-    fn eq(&self, other: &Mpz) -> bool {
-        unsafe { __gmpz_cmp(&self.mpz, &other.mpz) == 0 }
-    }
-    fn ne(&self, other: &Mpz) -> bool {
-        unsafe { __gmpz_cmp(&self.mpz, &other.mpz) != 0 }
+impl TotalEq for Mpz {
+    fn equals(&self, other: &Mpz) -> bool {
+        let cmp = unsafe { __gmpz_cmp(&self.mpz, &other.mpz) };
+        cmp == 0
     }
 }
 
-impl cmp::Ord for Mpz {
+impl Eq for Mpz {
+    fn eq(&self, other: &Mpz) -> bool {
+        self.equals(other)
+    }
+}
+
+impl TotalOrd for Mpz {
+    fn cmp(&self, other: &Mpz) -> Ordering {
+        let cmp = unsafe { __gmpz_cmp(&self.mpz, &other.mpz) };
+
+        match cmp {
+            x if x < 0 => Less,
+            x if x > 0 => Greater,
+            _ => Equal
+        }
+    }
+}
+
+impl Ord for Mpz {
     fn lt(&self, other: &Mpz) -> bool {
-        unsafe { __gmpz_cmp(&self.mpz, &other.mpz) < 0 }
-    }
-    fn le(&self, other: &Mpz) -> bool {
-        unsafe { __gmpz_cmp(&self.mpz, &other.mpz) <= 0 }
-    }
-    fn gt(&self, other: &Mpz) -> bool {
-        unsafe { __gmpz_cmp(&self.mpz, &other.mpz) > 0 }
-    }
-    fn ge(&self, other: &Mpz) -> bool {
-        unsafe { __gmpz_cmp(&self.mpz, &other.mpz) >= 0 }
+        self.cmp(other) == Less
     }
 }
 
