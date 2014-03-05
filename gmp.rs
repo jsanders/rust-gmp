@@ -73,6 +73,7 @@ extern "C" {
     fn __gmpz_tdiv_r(r: mpz_ptr, n: mpz_srcptr, d: mpz_srcptr);
     fn __gmpz_fdiv_q_2exp(q: mpz_ptr, n: mpz_srcptr, b: mp_bitcnt_t);
     fn __gmpz_mod(r: mpz_ptr, n: mpz_srcptr, d: mpz_srcptr);
+    fn __gmpz_divisible_p(n: mpz_srcptr, d: mpz_srcptr) -> c_int;
     fn __gmpz_and(rop: mpz_ptr, op1: mpz_srcptr, op2: mpz_srcptr);
     fn __gmpz_ior(rop: mpz_ptr, op1: mpz_srcptr, op2: mpz_srcptr);
     fn __gmpz_xor(rop: mpz_ptr, op1: mpz_srcptr, op2: mpz_srcptr);
@@ -230,6 +231,12 @@ impl Mpz {
             let mut res = Mpz::new();
             __gmpz_lcm(&mut res.mpz, &self.mpz, &other.mpz);
             res
+        }
+    }
+
+    pub fn divides(&self, other: &Mpz) -> bool {
+        unsafe {
+            __gmpz_divisible_p(&other.mpz, &self.mpz) != 0
         }
     }
 
@@ -947,6 +954,7 @@ impl Neg<Mpf> for Mpf {
 mod test_mpz {
     use super::*;
     use std::from_str::FromStr;
+    use std::num::ToStrRadix;
     use std::num::One;
     use std::libc::c_ulong;
 
@@ -1186,6 +1194,16 @@ mod test_mpz {
         assert!(five.lcm(&zero) == zero);
         assert!(three.lcm(&six) == six);
         assert!(eighteen.lcm(&twentyfour) == seventytwo);
+    }
+
+    #[test]
+    fn test_divides() {
+        let two: Mpz = FromPrimitive::from_int(2).unwrap();
+        let three: Mpz = FromPrimitive::from_int(3).unwrap();
+        let six: Mpz = FromPrimitive::from_int(6).unwrap();
+        assert!(two.divides(&six));
+        assert!(three.divides(&six));
+        assert!(!two.divides(&three));
     }
 
     #[test]
