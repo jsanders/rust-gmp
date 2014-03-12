@@ -377,7 +377,7 @@ impl Mul<Mpz, Mpz> for Mpz {
 impl Div<Mpz, Mpz> for Mpz {
     fn div(&self, other: &Mpz) -> Mpz {
         unsafe {
-            if self.is_zero() {
+            if other.is_zero() {
                 fail!(~"divide by zero")
             }
 
@@ -391,7 +391,7 @@ impl Div<Mpz, Mpz> for Mpz {
 impl Rem<Mpz, Mpz> for Mpz {
     fn rem(&self, other: &Mpz) -> Mpz {
         unsafe {
-            if self.is_zero() {
+            if other.is_zero() {
                 fail!(~"divide by zero")
             }
 
@@ -988,7 +988,7 @@ mod test_mpz {
     use super::*;
     use std::from_str::FromStr;
     use std::num::ToStrRadix;
-    use std::num::One;
+    use std::num::{Zero, One};
     use std::libc::c_ulong;
 
     #[test]
@@ -1060,17 +1060,33 @@ mod test_mpz {
     }
 
     #[test]
+    fn test_div_zero_numer() {
+        let x: Mpz = FromPrimitive::from_int(2).unwrap();
+        let zero: Mpz = Zero::zero();
+        assert_eq!(zero / x, zero);
+    }
+
+    #[test]
     #[should_fail]
-    fn test_div_zero() {
-        let x = Mpz::new();
-        x / x;
+    fn test_div_zero_denom() {
+        let x: Mpz = FromPrimitive::from_int(2).unwrap();
+        let zero: Mpz = Zero::zero();
+        x / zero;
+    }
+
+    #[test]
+    fn test_rem_zero_numer() {
+        let x: Mpz = FromPrimitive::from_int(2).unwrap();
+        let zero: Mpz = Zero::zero();
+        assert_eq!(zero % x, zero);
     }
 
     #[test]
     #[should_fail]
     fn test_rem_zero() {
-        let x = Mpz::new();
-        x % x;
+        let x: Mpz = FromPrimitive::from_int(2).unwrap();
+        let zero: Mpz = Zero::zero();
+        x % zero;
     }
 
     #[test]
