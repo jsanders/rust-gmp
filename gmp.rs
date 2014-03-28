@@ -313,18 +313,14 @@ impl Clone for Mpz {
     }
 }
 
-impl TotalEq for Mpz {
-    fn equals(&self, other: &Mpz) -> bool {
+impl Eq for Mpz {
+    fn eq(&self, other: &Mpz) -> bool {
         let cmp = unsafe { __gmpz_cmp(&self.mpz, &other.mpz) };
         cmp == 0
     }
 }
 
-impl Eq for Mpz {
-    fn eq(&self, other: &Mpz) -> bool {
-        self.equals(other)
-    }
-}
+impl TotalEq for Mpz { }
 
 impl TotalOrd for Mpz {
     fn cmp(&self, other: &Mpz) -> Ordering {
